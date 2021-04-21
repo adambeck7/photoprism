@@ -90,6 +90,7 @@ import Event from "pubsub-js";
 import Thumb from "model/thumb";
 import Photo from "model/photo";
 import Notify from "common/notify";
+import { saveAs } from 'file-saver';
 
 export default {
   name: "PPhotoViewer",
@@ -221,15 +222,23 @@ export default {
     },
     onDownload() {
       this.onPause();
-
+      console.log("first ondownload fired")
       if (!this.item || !this.item.download_url) {
         console.warn("photo viewer: no download url");
         return;
       }
+      console.log('ondownload')
+      // Notify.success(this.$gettext("Downloading…"));
+       new Photo().find(this.item.uid).then(p => {
+         console.log('p', p)
+        const downloadImg = new Blob([p.downloadAll()]);
+        console.log('downloading', downloadImg)
+        saveAs(downloadImg, p.name)
+        this.$router.go(-1)
+        });
 
-      Notify.success(this.$gettext("Downloading…"));
-
-      new Photo().find(this.item.uid).then(p => p.downloadAll());
+      // new Photo().find(this.item.uid).then(p => p.downloadAll());
+      
     },
     onEdit() {
       this.onPause();
